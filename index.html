@@ -276,11 +276,22 @@
     hint.setAttribute('aria-label', 'Zaokrąglij w dół do pełnych centymetrów: ' + Object.keys(RATIO).map((key) => key.toUpperCase() + ' ' + w * RATIO[key]).join(', '));
   }
 
-  hint.addEventListener('click', () => {
+  function applyHint() {
+    if (hint.disabled) return;
     k = wholeK();
     saveK();
     render();
-  });
+    // Wynik jest gotowy, więc chowamy klawiaturę, żeby odsłonić trójkąt
+    if (document.activeElement instanceof HTMLInputElement) document.activeElement.blur();
+  }
+
+  // Na iPhonie pierwsze stuknięcie przy otwartej klawiaturze tylko ją zamyka (ekran się
+  // przesuwa i "click" przepada). Reagujemy więc już na dotknięcie, zanim iOS zdejmie fokus.
+  hint.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    applyHint();
+  }, { passive: false });
+  hint.addEventListener('click', applyHint);
 
   for (const key in inputs) {
     const input = inputs[key];

@@ -1,9 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#121417"/>
-  <!-- Trójkąt 3:4:5 wyśrodkowany w strefie bezpiecznej ikony maskable (koło r=40%) -->
-  <path d="M316 346 A60 60 0 0 1 376 286" fill="none" stroke="#9aa3ae" stroke-width="8"/>
-  <circle cx="354.8" cy="324.8" r="8" fill="#9aa3ae"/>
-  <line x1="376" y1="166" x2="376" y2="346" stroke="#ff922b" stroke-width="22" stroke-linecap="round"/>
-  <line x1="136" y1="346" x2="376" y2="346" stroke="#4dabf7" stroke-width="22" stroke-linecap="round"/>
-  <line x1="136" y1="346" x2="376" y2="166" stroke="#69db7c" stroke-width="22" stroke-linecap="round"/>
+  <!-- Układ lokalny: kąt prosty w (0,0), 1 j. = 70. Całość mieści się w strefie bezpiecznej ikony maskable (koło r=40%). -->
+  <g transform="translate(366 323)" font-family="Segoe UI, system-ui, sans-serif" font-weight="800" font-size="84" dominant-baseline="central" text-anchor="middle">
+    <path d="M-58 0 A58 58 0 0 1 0 -58" fill="none" stroke="#9aa3ae" stroke-width="8"/>
+    <circle cx="-22" cy="-22" r="7" fill="#9aa3ae"/>
+    <line x1="0" y1="-210" x2="0" y2="0" stroke="#ff922b" stroke-width="24" stroke-linecap="round"/>
+    <line x1="-280" y1="0" x2="0" y2="0" stroke="#4dabf7" stroke-width="24" stroke-linecap="round"/>
+    <line x1="-280" y1="0" x2="0" y2="-210" stroke="#69db7c" stroke-width="24" stroke-linecap="round"/>
+    <text x="50" y="-105" fill="#ff922b">3</text>
+    <text x="-140" y="58" fill="#4dabf7">4</text>
+    <text x="-178" y="-155" fill="#69db7c">5</text>
+  </g>
 </svg>

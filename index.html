@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Trójkąt 3-4-5</title>
 <meta name="description" content="Kalkulator trójkąta 3-4-5 do wyznaczania kąta prostego na budowie.">
 <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
@@ -44,12 +44,22 @@
   }
 
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  /* Apka ma stać w miejscu: bez przewijania, sprężynowania i powiększania gestami */
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
   body {
     background: var(--bg);
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    min-height: 100svh;
+    -webkit-text-size-adjust: 100%;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
     padding:
       calc(16px + env(safe-area-inset-top))
       calc(16px + env(safe-area-inset-right))
@@ -100,6 +110,8 @@
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     text-align: right;
+    -webkit-user-select: text;
+    user-select: text;
   }
   .field .unit {
     flex: none;
@@ -299,6 +311,11 @@
   }
 
   render();
+
+  // iOS Safari ignoruje user-scalable=no, więc szczypanie blokujemy ręcznie
+  // (dwuklik blokuje już touch-action: none)
+  document.addEventListener('gesturestart', (e) => e.preventDefault());
+  document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

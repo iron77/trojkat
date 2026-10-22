@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trójkąt 3-4-5</title>
+<meta name="description" content="Kalkulator trójkąta 3-4-5 do wyznaczania kąta prostego na budowie.">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Trójkąt">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --text: #15171a;
+    --muted: #5c636e;
+    --border: #c9ced6;
+    --invalid: #e03131;
+    --a: #d9480f;
+    --b: #1971c2;
+    --c: #2b8a3e;
+    --on-side: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121417;
+      --surface: #1c1f24;
+      --text: #f1f3f5;
+      --muted: #9aa3ae;
+      --border: #3a404a;
+      --invalid: #ff6b6b;
+      --a: #ff922b;
+      --b: #4dabf7;
+      --c: #69db7c;
+      --on-side: #121417;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100svh;
+    padding:
+      calc(16px + env(safe-area-inset-top))
+      calc(16px + env(safe-area-inset-right))
+      calc(16px + env(safe-area-inset-bottom))
+      calc(16px + env(safe-area-inset-left));
+    -webkit-tap-highlight-color: transparent;
+  }
+  main {
+    max-width: 420px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    height: 84px;
+    background: var(--surface);
+    border: 3px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .field .tag {
+    flex: none;
+    width: 64px;
+    align-self: stretch;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--on-side);
+    background: var(--side);
+  }
+  .field input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    padding: 0 8px 0 16px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 2.6rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .field .unit {
+    flex: none;
+    padding-right: 16px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .field:focus-within { border-color: var(--side); }
+  .field.invalid { border-color: var(--invalid); }
+
+  [data-side="a"] { --side: var(--a); }
+  [data-side="b"] { --side: var(--b); }
+  [data-side="c"] { --side: var(--c); }
+
+  svg {
+    display: block;
+    width: 100%;
+    max-height: 40svh;
+    margin-top: 6px;
+    overflow: visible;
+  }
+  /* non-scaling-stroke: każdy bok ma dokładnie tyle samo pikseli grubości, niezależnie od skali SVG */
+  svg .side {
+    stroke: var(--side);
+    stroke-width: 6px;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  svg .corner { fill: none; stroke: var(--muted); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+  svg .corner-dot { fill: var(--muted); }
+  svg .label { fill: var(--side); font-weight: 700; font-size: 20px; }
+  svg .label .letter { font-size: 30px; font-weight: 800; }
+
+  /* Stałe miejsce na podpowiedź, żeby trójkąt nie skakał, gdy się pojawia/znika */
+  .hint-slot { display: flex; justify-content: center; min-height: 48px; }
+  .hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 18px;
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    animation: pop .2s ease-out;
+  }
+  .hint.off { visibility: hidden; animation: none; }
+  .hint b { color: var(--side); font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .hint .sep { opacity: .6; }
+  .hint:active { transform: scale(.97); }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+</style>
+</head>
+<body>
+<main>
+  <label class="field" data-side="a">
+    <span class="tag">A</span>
+    <input id="a" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" aria-label="Bok A w centymetrach">
+    <span class="unit">cm</span>
+  </label>
+  <label class="field" data-side="b">
+    <span class="tag">B</span>
+    <input id="b" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" aria-label="Bok B w centymetrach">
+    <span class="unit">cm</span>
+  </label>
+  <label class="field" data-side="c">
+    <span class="tag">C</span>
+    <input id="c" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" aria-label="Bok C (przeciwprostokątna) w centymetrach">
+    <span class="unit">cm</span>
+  </label>
+
+  <div class="hint-slot">
+    <button id="hint" class="hint off" type="button" aria-live="polite">
+      <span aria-hidden="true">💡</span>
+      <span class="hint-text">Pełne cm:</span>
+      <b data-side="a" id="ha"></b><span class="sep">·</span><b data-side="b" id="hb"></b><span class="sep">·</span><b data-side="c" id="hc"></b>
+    </button>
+  </div>
+
+  <!-- Trójkąt wyśrodkowany w osi (x = 220); kąt prosty w (332,206); A = 3 j., B = 4 j., C = 5 j. (1 j. = 56) -->
+  <svg viewBox="0 0 440 250" role="img" aria-label="Trójkąt prostokątny: A i B to boki przy kącie prostym, C to przeciwprostokątna">
+    <path class="corner" d="M300 206 A32 32 0 0 1 332 174"/>
+    <circle class="corner-dot" cx="320.7" cy="194.7" r="3.5"/>
+    <line class="side" data-side="a" x1="332" y1="38" x2="332" y2="206"/>
+    <line class="side" data-side="b" x1="108" y1="206" x2="332" y2="206"/>
+    <line class="side" data-side="c" x1="108" y1="206" x2="332" y2="38"/>
+    <text class="label" data-side="a" x="350" y="132"><tspan class="letter">A</tspan> <tspan id="la"></tspan></text>
+    <text class="label" data-side="b" x="220" y="244" text-anchor="middle"><tspan class="letter">B</tspan> <tspan id="lb"></tspan></text>
+    <text class="label" data-side="c" x="207" y="104" text-anchor="middle" transform="rotate(-36.87 207 104)"><tspan class="letter">C</tspan> <tspan id="lc"></tspan></text>
+  </svg>
+</main>
+
+<script>
+  const RATIO = { a: 3, b: 4, c: 5 };
+  const DEFAULT_K = 100;
+  const STORAGE_KEY = 'trojkat.k';
+
+  const inputs = { a: document.getElementById('a'), b: document.getElementById('b'), c: document.getElementById('c') };
+  const labels = { a: document.getElementById('la'), b: document.getElementById('lb'), c: document.getElementById('lc') };
+  const hint = document.getElementById('hint');
+  const hintValues = { a: document.getElementById('ha'), b: document.getElementById('hb'), c: document.getElementById('hc') };
+
+  let k = loadK();
+
+  function loadK() {
+    try {
+      const v = Number(localStorage.getItem(STORAGE_KEY));
+      if (Number.isFinite(v) && v > 0) return v;
+    } catch (e) {}
+    return DEFAULT_K;
+  }
+
+  function saveK() {
+    try { localStorage.setItem(STORAGE_KEY, String(k)); } catch (e) {}
+  }
+
+  // 253.33 -> "253,3", 400 -> "400"
+  function format(n) {
+    const r = Math.round(n * 10) / 10;
+    return (Number.isInteger(r) ? String(r) : r.toFixed(1)).replace('.', ',');
+  }
+
+  function parse(s) {
+    const t = s.replace(/\s/g, '').replace(',', '.');
+    if (!/^\d*\.?\d+$|^\d+\.$/.test(t)) return NaN;
+    const v = Number(t);
+    return v > 0 ? v : NaN;
+  }
+
+  // Wypełnia pola wg aktualnego k; pole `skip` (właśnie edytowane) zostaje nietknięte.
+  function render(skip) {
+    for (const key in RATIO) {
+      const text = format(k * RATIO[key]);
+      labels[key].textContent = text;
+      if (key !== skip) {
+        inputs[key].value = text;
+        inputs[key].parentElement.classList.remove('invalid');
+      }
+    }
+    renderHint();
+  }
+
+  // Wszystkie boki są pełnymi cm dokładnie wtedy, gdy k jest liczbą całkowitą
+  // (bo k = 4k - 3k). Najbliższy mniejszy taki trójkąt to więc floor(k).
+  function wholeK() {
+    return Math.floor(k + 1e-9);
+  }
+
+  function renderHint() {
+    const w = wholeK();
+    const show = w >= 1 && k - w > 1e-6;
+    hint.classList.toggle('off', !show);
+    hint.disabled = !show;
+    if (!show) return;
+    for (const key in RATIO) hintValues[key].textContent = w * RATIO[key];
+    hint.setAttribute('aria-label', 'Zaokrąglij w dół do pełnych centymetrów: ' + Object.keys(RATIO).map((key) => key.toUpperCase() + ' ' + w * RATIO[key]).join(', '));
+  }
+
+  hint.addEventListener('click', () => {
+    k = wholeK();
+    saveK();
+    render();
+  });
+
+  for (const key in inputs) {
+    const input = inputs[key];
+    const field = input.parentElement;
+
+    input.addEventListener('input', () => {
+      const v = parse(input.value);
+      if (Number.isNaN(v)) {
+        field.classList.add('invalid');
+        return;
+      }
+      field.classList.remove('invalid');
+      k = v / RATIO[key];
+      saveK();
+      render(key);
+    });
+
+    input.addEventListener('focus', () => {
+      // iOS ignoruje select() wywołane bezpośrednio w focus
+      setTimeout(() => input.setSelectionRange(0, input.value.length), 0);
+    });
+
+    input.addEventListener('blur', () => render());
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') input.blur();
+    });
+  }
+
+  render();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

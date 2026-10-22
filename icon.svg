@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#121417"/>
+  <!-- Trójkąt 3:4:5 wyśrodkowany w strefie bezpiecznej ikony maskable (koło r=40%) -->
+  <path d="M316 346 A60 60 0 0 1 376 286" fill="none" stroke="#9aa3ae" stroke-width="8"/>
+  <circle cx="354.8" cy="324.8" r="8" fill="#9aa3ae"/>
+  <line x1="376" y1="166" x2="376" y2="346" stroke="#ff922b" stroke-width="22" stroke-linecap="round"/>
+  <line x1="136" y1="346" x2="376" y2="346" stroke="#4dabf7" stroke-width="22" stroke-linecap="round"/>
+  <line x1="136" y1="346" x2="376" y2="166" stroke="#69db7c" stroke-width="22" stroke-linecap="round"/>
+</svg>

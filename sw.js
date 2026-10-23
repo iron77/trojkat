@@ -1,5 +1,5 @@
 // Podbij wersję przy każdej zmianie plików, żeby telefony pobrały nowe.
-const CACHE = 'trojkat-v8';
+const CACHE = 'trojkat-v9';
 const ASSETS = [
   './',
   './index.html',
